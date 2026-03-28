@@ -55,6 +55,7 @@ export default function Timer() {
         return (
           <Paper
             key={slot.id}
+            data-testid="timer-slot"
             variant="outlined"
             sx={{ p: 2, borderRadius: 2, borderColor: slot.running ? 'primary.main' : 'divider', bgcolor: slot.running ? 'primary.50' : 'background.paper' }}
           >
