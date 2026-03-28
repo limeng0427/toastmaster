@@ -1,0 +1,163 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Toastmaster SPA — S3 + CloudFront + ACM + Route53
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: toastmaster.kotahirau.com
+    Description: Full domain name for the app
+  HostedZoneId:
+    Type: String
+    Description: Route53 Hosted Zone ID for kotahirau.com
+
+Resources:
+  # -------------------------------------------------------------------
+  # S3 bucket — private, files served only through CloudFront OAC
+  # -------------------------------------------------------------------
+  ToastmasterBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub toastmaster-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Project
+          Value: toastmaster
+        - Key: Environment
+          Value: prod
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  # -------------------------------------------------------------------
+  # ACM certificate — DNS-validated, must be in us-east-1 for CloudFront
+  # -------------------------------------------------------------------
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+      Tags:
+        - Key: Project
+          Value: toastmaster
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  # -------------------------------------------------------------------
+  # CloudFront Origin Access Control
+  # -------------------------------------------------------------------
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: toastmaster-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # -------------------------------------------------------------------
+  # S3 bucket policy — allow CloudFront OAC only
+  # -------------------------------------------------------------------
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ToastmasterBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontOAC
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub ${ToastmasterBucket.Arn}/*
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
+
+  # -------------------------------------------------------------------
+  # CloudFront distribution
+  # -------------------------------------------------------------------
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Ref DomainName
+        Aliases:
+          - !Ref DomainName
+        DefaultRootObject: index.html
+        PriceClass: PriceClass_100
+        HttpVersion: http2and3
+        Origins:
+          - Id: s3-origin
+            DomainName: !GetAtt ToastmasterBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+        DefaultCacheBehavior:
+          TargetOriginId: s3-origin
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # CachingOptimized
+          Compress: true
+        # SPA fallback — return index.html for any 403/404 from S3
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        ViewerCertificate:
+          AcmCertificateArn: !Ref Certificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+      Tags:
+        - Key: Project
+          Value: toastmaster
+        - Key: Environment
+          Value: prod
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  # -------------------------------------------------------------------
+  # Route53 — A + AAAA alias records → CloudFront
+  # -------------------------------------------------------------------
+  DnsRecords:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      RecordSets:
+        - Name: !Ref DomainName
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt Distribution.DomainName
+            EvaluateTargetHealth: false
+            HostedZoneId: Z2FDTNDATAQYW2  # CloudFront's fixed hosted zone ID
+        - Name: !Ref DomainName
+          Type: AAAA
+          AliasTarget:
+            DNSName: !GetAtt Distribution.DomainName
+            EvaluateTargetHealth: false
+            HostedZoneId: Z2FDTNDATAQYW2
+
+Outputs:
+  BucketName:
+    Value: !Ref ToastmasterBucket
+    Export:
+      Name: toastmaster-bucket-name
+  DistributionId:
+    Value: !Ref Distribution
+    Export:
+      Name: toastmaster-distribution-id
+  DistributionDomain:
+    Value: !GetAtt Distribution.DomainName
+    Export:
+      Name: toastmaster-distribution-domain
+  SiteUrl:
+    Value: !Sub https://${DomainName}
