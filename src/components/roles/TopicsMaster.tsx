@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Box, Button, Chip, FormControl, IconButton, MenuItem,
+  Box, Button, FormControl, IconButton, MenuItem,
   Paper, Select, Stack, TextField, Tooltip, Typography,
 } from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'

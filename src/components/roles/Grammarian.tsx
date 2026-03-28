@@ -1,5 +1,5 @@
 import {
-  Box, IconButton, Paper, Stack, Table, TableBody, TableCell,
+  IconButton, Paper, Stack, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, TextField, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
