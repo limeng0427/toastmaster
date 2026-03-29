@@ -1,6 +1,8 @@
 import { Stagehand } from '@browserbasehq/stagehand'
 import type { Page } from '@playwright/test'
 
+export const BASE_URL = process.env.BASE_URL ?? 'http://localhost:4173'
+
 export function createStagehand(): Stagehand {
   return new Stagehand({
     env: 'LOCAL',

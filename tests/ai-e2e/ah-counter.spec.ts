@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { z } from 'zod'
 import { Stagehand } from '@browserbasehq/stagehand'
 import { ahCounterUseCase as UC } from '../use-cases/ah-counter'
-import { createStagehand, getPage } from './helpers/stagehand'
+import { createStagehand, getPage, BASE_URL } from './helpers/stagehand'
 
 test.describe(`${UC.id} (AI): ${UC.title}`, () => {
   let stagehand: Stagehand
@@ -10,7 +10,7 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
   test.beforeEach(async () => {
     stagehand = createStagehand()
     await stagehand.init()
-    await getPage(stagehand).goto('/')
+    await getPage(stagehand).goto(BASE_URL)
     await stagehand.act('Click the Name text field')
     await stagehand.act('Type "Alice"')
     await stagehand.act('Click the Add button')
