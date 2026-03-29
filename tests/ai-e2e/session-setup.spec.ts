@@ -10,7 +10,7 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
   test.beforeEach(async () => {
     stagehand = createStagehand()
     await stagehand.init()
-    await getPage(stagehand).goto(process.env.BASE_URL ?? 'https://toastmaster.kotahirau.com')
+    await getPage(stagehand).goto('/')
   })
 
   test.afterEach(async () => {

@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const baseURL = process.env.BASE_URL ?? 'https://toastmaster.kotahirau.com'
+const useExternalURL = Boolean(process.env.BASE_URL)
+const baseURL = process.env.BASE_URL ?? 'http://localhost:4173'
 
 export default defineConfig({
   testDir: './tests/ai-e2e',
@@ -19,12 +20,12 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  ...(!process.env.BASE_URL && !process.env.CI
+  ...(!useExternalURL
     ? {
         webServer: {
           command: 'npm run build && npm run preview',
           url: 'http://localhost:4173',
-          reuseExistingServer: true,
+          reuseExistingServer: !process.env.CI,
           timeout: 120_000,
           stdout: 'pipe',
           stderr: 'pipe',
