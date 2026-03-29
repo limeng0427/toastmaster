@@ -1,5 +1,6 @@
 import { Stagehand } from '@browserbasehq/stagehand'
-import type { Page, TestInfo } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { test } from '@playwright/test'
 import fs from 'fs'
 
 export const BASE_URL = process.env.BASE_URL ?? 'http://localhost:4173'
@@ -25,8 +26,8 @@ export async function startTracing(stagehand: Stagehand): Promise<void> {
   await stagehand.context.tracing.start({ screenshots: true, snapshots: true })
 }
 
-export async function stopTracingAndClose(stagehand: Stagehand, testInfo: TestInfo): Promise<void> {
-  const safeName = testInfo.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 80)
+export async function stopTracingAndClose(stagehand: Stagehand): Promise<void> {
+  const safeName = test.info().title.replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 80)
   fs.mkdirSync('playwright-ai-report/traces', { recursive: true })
   await stagehand.context.tracing.stop({
     path: `playwright-ai-report/traces/${safeName}.zip`,

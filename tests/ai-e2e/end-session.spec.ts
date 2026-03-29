@@ -18,8 +18,8 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     await stagehand.act('Click the Start Session button')
   })
 
-  test.afterEach(async (_fixtures, testInfo) => {
-    await stopTracingAndClose(stagehand, testInfo)
+  test.afterEach(async () => {
+    await stopTracingAndClose(stagehand)
   })
 
   // UC.acceptanceCriteria[0]: "Confirming the End dialog resets all data and shows the Setup screen"

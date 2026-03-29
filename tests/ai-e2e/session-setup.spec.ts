@@ -14,8 +14,8 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     await getPage(stagehand).goto(BASE_URL)
   })
 
-  test.afterEach(async (_fixtures, testInfo) => {
-    await stopTracingAndClose(stagehand, testInfo)
+  test.afterEach(async () => {
+    await stopTracingAndClose(stagehand)
   })
 
   // UC.acceptanceCriteria[0]: "The Start Session button is disabled until at least one member is added"

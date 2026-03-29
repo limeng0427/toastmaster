@@ -22,8 +22,8 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     await stagehand.act('Click the Ah Counter tab')
   })
 
-  test.afterEach(async (_fixtures, testInfo) => {
-    await stopTracingAndClose(stagehand, testInfo)
+  test.afterEach(async () => {
+    await stopTracingAndClose(stagehand)
   })
 
   // UC.acceptanceCriteria[0]: "Pressing A while a member row is selected increments that member's Ah count by 1"

@@ -19,8 +19,8 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     await stagehand.act('Click the Timer tab')
   })
 
-  test.afterEach(async (_fixtures, testInfo) => {
-    await stopTracingAndClose(stagehand, testInfo)
+  test.afterEach(async () => {
+    await stopTracingAndClose(stagehand)
   })
 
   // UC.acceptanceCriteria[0]: "Three default slots are visible: Prepared Speech, Table Topic, Evaluation"
