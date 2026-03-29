@@ -23,10 +23,10 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
 
   // UC.acceptanceCriteria[0]: "Confirming the End dialog resets all data and shows the Setup screen"
   test(UC.acceptanceCriteria[0], async () => {
+    await screenshot(stagehand, '1-session-active')
     await getPage(stagehand).evaluate(() => { window.confirm = () => true })
     await stagehand.act('Click the End button in the header')
-
-    await screenshot(stagehand, 'uc05-session-ended-setup-screen')
+    await screenshot(stagehand, '2-session-ended-setup-screen')
 
     const { onSetupScreen } = await stagehand.extract(
       'Is the app now showing the initial Setup screen where you can add attendees and a "Start Session" button is present?',
@@ -35,13 +35,12 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     expect(onSetupScreen).toBe(true)
   })
 
-  // UC.acceptanceCriteria[1]: "Dismissing the End dialog keeps the session active"
   test.skip(UC.acceptanceCriteria[1], async () => {
     await getPage(stagehand).evaluate(() => { window.confirm = () => false })
     await stagehand.act('Click the End button in the header')
 
     const { sessionActive } = await stagehand.extract(
-      'Are the role tabs (Ah Counter, Timer, Grammarian, etc.) still visible, meaning the session is still active?',
+      'Are the role tabs (Ah Counter, Timer, Grammarian, etc.) still visible?',
       z.object({ sessionActive: z.boolean() }),
     )
     expect(sessionActive).toBe(true)

@@ -27,11 +27,11 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
 
   // UC.acceptanceCriteria[0]: "Pressing A while a member row is selected increments that member's Ah count by 1"
   test(UC.acceptanceCriteria[0], async () => {
+    await screenshot(stagehand, '1-ah-counter-before')
     await getPage(stagehand).evaluate(() =>
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true })),
     )
-
-    await screenshot(stagehand, 'uc02-ah-keyboard-increment')
+    await screenshot(stagehand, '2-ah-counter-after-keypress')
 
     const { count } = await stagehand.extract(
       "What is the Ah filler word count shown for Alice in the table?",
@@ -40,16 +40,14 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     expect(count).toBe(1)
   })
 
-  // UC.acceptanceCriteria[1]: "The selected member row has aria-selected='true'"
   test.skip(UC.acceptanceCriteria[1], async () => {
     const { selected } = await stagehand.extract(
-      'Which member row appears highlighted or selected (with a small blue indicator) in the Ah Counter table?',
+      'Which member row appears highlighted or selected in the Ah Counter table?',
       z.object({ selected: z.string() }),
     )
     expect(selected.toLowerCase()).toContain('alice')
   })
 
-  // UC.acceptanceCriteria[2]: "Clicking the decrease button on a count reduces it by 1, with a floor of 0"
   test.skip(UC.acceptanceCriteria[2], async () => {
     await stagehand.act('Click the increase button for the Ah column in Alice\'s row')
     await stagehand.act('Click the increase button for the Ah column in Alice\'s row')
@@ -62,7 +60,6 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     expect(count).toBe(1)
   })
 
-  // UC.acceptanceCriteria[3]: "Counts are independent per member — incrementing one does not affect another"
   // Fixed: use button clicks for both members — keyboard selection was unreliable across members
   test.skip(UC.acceptanceCriteria[3], async () => {
     await stagehand.act('Click the increase button for the Ah column in Alice\'s row')

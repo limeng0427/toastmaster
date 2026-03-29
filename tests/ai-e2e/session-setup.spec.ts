@@ -18,7 +18,6 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
   })
 
   // UC.acceptanceCriteria[0]: "The Start Session button is disabled until at least one member is added"
-  // Fixed: getByRole not available on Stagehand's patchright page — use extract instead
   test.skip(UC.acceptanceCriteria[0], async () => {
     const { isDisabled } = await stagehand.extract(
       'Is the "Start Session" button currently disabled or greyed out (not clickable)?',
@@ -29,14 +28,14 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
 
   // UC.acceptanceCriteria[1]: "Each added member appears in the member list"
   test(UC.acceptanceCriteria[1], async () => {
+    await screenshot(stagehand, '1-setup-screen')
     await stagehand.act('Click the Name text field')
     await stagehand.act('Type "Alice"')
     await stagehand.act('Click the Add button')
     await stagehand.act('Click the Name text field')
     await stagehand.act('Type "Bob"')
     await stagehand.act('Click the Add button')
-
-    await screenshot(stagehand, 'uc01-members-added')
+    await screenshot(stagehand, '2-both-members-added')
 
     const { members } = await stagehand.extract(
       'List the names shown in the attendee list below the input row',
@@ -48,12 +47,12 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
 
   // UC.acceptanceCriteria[2]: "After clicking Start Session, all five role tabs are visible"
   test(UC.acceptanceCriteria[2], async () => {
+    await screenshot(stagehand, '1-before-start')
     await stagehand.act('Click the Name text field')
     await stagehand.act('Type "Alice"')
     await stagehand.act('Click the Add button')
     await stagehand.act('Click the Start Session button')
-
-    await screenshot(stagehand, 'uc01-session-started-tabs')
+    await screenshot(stagehand, '2-session-started-all-tabs')
 
     const { tabs } = await stagehand.extract(
       'List the names of all visible navigation tabs at the top of the page',

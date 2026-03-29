@@ -22,7 +22,7 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
 
   // UC.acceptanceCriteria[0]: "Clicking Export triggers a file download named toastmasters-YYYY-MM-DD.txt"
   test(UC.acceptanceCriteria[0], async () => {
-    await screenshot(stagehand, 'uc04-export-before-click')
+    await screenshot(stagehand, '1-session-ready-to-export')
 
     await getPage(stagehand).evaluate(() => {
       const origCreateObjectURL = URL.createObjectURL.bind(URL)

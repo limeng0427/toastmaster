@@ -24,7 +24,7 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
 
   // UC.acceptanceCriteria[0]: "Three default slots are visible: Prepared Speech, Table Topic, Evaluation"
   test(UC.acceptanceCriteria[0], async () => {
-    await screenshot(stagehand, 'uc03-timer-default-slots')
+    await screenshot(stagehand, '1-timer-tab-loaded')
 
     const { slots } = await stagehand.extract(
       'List the label or name of each timer slot card currently visible on the page',
@@ -37,9 +37,9 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
 
   // UC.acceptanceCriteria[1]: "Clicking Start replaces the Start button with a Pause button"
   test(UC.acceptanceCriteria[1], async () => {
+    await screenshot(stagehand, '1-timer-before-start')
     await stagehand.act('Click the Start button on the first timer slot')
-
-    await screenshot(stagehand, 'uc03-timer-running-pause-visible')
+    await screenshot(stagehand, '2-timer-running-pause-visible')
 
     const { hasPause, hasStart } = await stagehand.extract(
       'In the first timer slot card, is there a Pause button visible? Is there a Start button visible?',
@@ -51,14 +51,13 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     await stagehand.act('Click the Pause button on the first timer slot')
   })
 
-  // UC.acceptanceCriteria[2]: "Clicking Reset while a timer is running stops it and returns the display to 0:00"
   test.skip(UC.acceptanceCriteria[2], async () => {
     await stagehand.act('Click the Start button on the first timer slot')
     await getPage(stagehand).waitForTimeout(1200)
     await stagehand.act('Click the Reset button on the first timer slot')
 
     const { display, hasStart } = await stagehand.extract(
-      'In the first timer slot card, what time is shown on the timer display? Is there a Start button (meaning it is not currently running)?',
+      'In the first timer slot card, what time is shown? Is there a Start button visible?',
       z.object({
         display: z.string().describe('the time shown, e.g. "0:00"'),
         hasStart: z.boolean().describe('true if Start button is visible (timer is stopped)'),
@@ -68,7 +67,6 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     expect(hasStart).toBe(true)
   })
 
-  // UC.acceptanceCriteria[3]: "A new custom slot can be added and appears in the list"
   test.skip(UC.acceptanceCriteria[3], async () => {
     await stagehand.act('Click the label input field in the "Add speech slot" section at the bottom')
     await stagehand.act('Type "Humorous Speech"')
