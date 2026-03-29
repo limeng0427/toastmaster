@@ -36,3 +36,21 @@ jobs:
           name: playwright-ai-report-${{ github.run_id }}
           path: playwright-ai-report/
           retention-days: 14
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ github.run_id }}
+          path: playwright-ai-report/screenshots/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload traces (video timeline)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traces-${{ github.run_id }}
+          path: playwright-ai-report/traces/
+          retention-days: 14
+          if-no-files-found: ignore

@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { z } from 'zod'
 import { exportSessionUseCase as UC } from '../use-cases/export-session'
-import { createStagehand, getPage, BASE_URL } from './helpers/stagehand'
+import { createStagehand, getPage, BASE_URL, startTracing, stopTracingAndClose, screenshot } from './helpers/stagehand'
 import { Stagehand } from '@browserbasehq/stagehand'
 
 test.describe(`${UC.id} (AI): ${UC.title}`, () => {
@@ -10,6 +9,7 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
   test.beforeEach(async () => {
     stagehand = createStagehand()
     await stagehand.init()
+    await startTracing(stagehand)
     await getPage(stagehand).goto(BASE_URL)
     await stagehand.act('Click the Name text field')
     await stagehand.act('Type "Alice"')
@@ -17,13 +17,14 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
     await stagehand.act('Click the Start Session button')
   })
 
-  test.afterEach(async () => {
-    await stagehand.close()
+  test.afterEach(async (_fixtures, testInfo) => {
+    await stopTracingAndClose(stagehand, testInfo)
   })
 
   // UC.acceptanceCriteria[0]: "Clicking Export triggers a file download named toastmasters-YYYY-MM-DD.txt"
   test(UC.acceptanceCriteria[0], async () => {
-    // Intercept the download URL via evaluate before Stagehand clicks Export
+    await screenshot(stagehand, 'uc04-export-before-click')
+
     await getPage(stagehand).evaluate(() => {
       const origCreateObjectURL = URL.createObjectURL.bind(URL)
       URL.createObjectURL = (blob: Blob) => {
