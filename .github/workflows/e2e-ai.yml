@@ -9,6 +9,8 @@ jobs:
   e2e-ai:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +31,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      - name: Upload AI test report
+      - name: Upload AI test report artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -37,12 +39,19 @@ jobs:
           path: playwright-ai-report/
           retention-days: 14
 
-      - name: Upload screenshots
+      - name: Publish report to GitHub Pages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: screenshots-${{ github.run_id }}
-          path: playwright-ai-report/screenshots/
-          retention-days: 14
-          if-no-files-found: ignore
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: playwright-ai-report/
+          destination_dir: ${{ github.run_number }}
+          keep_files: true
 
+      - name: Print report URL
+        if: always()
+        run: |
+          URL="https://limeng0427.github.io/toastmaster/${{ github.run_number }}/"
+          echo "Report URL: $URL"
+          echo "## AI E2E Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "[View Playwright Report]($URL)" >> $GITHUB_STEP_SUMMARY
