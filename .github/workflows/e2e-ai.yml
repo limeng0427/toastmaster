@@ -1,0 +1,38 @@
+name: E2E Tests (AI)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'  # every Monday at 9am UTC
+
+jobs:
+  e2e-ai:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run AI use case tests
+        run: npm run test:ai-e2e
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Upload AI test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-ai-report-${{ github.run_id }}
+          path: playwright-ai-report/
+          retention-days: 14
