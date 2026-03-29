@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { z } from 'zod'
 import { Stagehand } from '@browserbasehq/stagehand'
 import { sessionSetupUseCase as UC } from '../use-cases/session-setup'
-import { createStagehand, getPage, BASE_URL, startTracing, stopTracingAndClose, screenshot } from './helpers/stagehand'
+import { createStagehand, getPage, BASE_URL, screenshot } from './helpers/stagehand'
 
 test.describe(`${UC.id} (AI): ${UC.title}`, () => {
   let stagehand: Stagehand
@@ -10,12 +10,11 @@ test.describe(`${UC.id} (AI): ${UC.title}`, () => {
   test.beforeEach(async () => {
     stagehand = createStagehand()
     await stagehand.init()
-    await startTracing(stagehand)
     await getPage(stagehand).goto(BASE_URL)
   })
 
   test.afterEach(async () => {
-    await stopTracingAndClose(stagehand)
+    await stagehand.close()
   })
 
   // UC.acceptanceCriteria[0]: "The Start Session button is disabled until at least one member is added"
